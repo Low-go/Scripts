@@ -10,7 +10,7 @@ COUNTRIES_212E = {
     "Cameroon", "Democratic Republic of the Congo", "Djibouti", "Ecuador",
     "El Salvador", "Eritrea", "Ethiopia", "Fiji", "Gambia, The", "Ghana",
     "Guatemala", "Haiti", "Honduras", "Jamaica", "Kenya", "Kosovo", "Lebanon",
-    "Liberia", "Malawi", "Mali", "Mauritania", "Mozambique", "Nepal",
+    "Liberia", "Malawi", "Mali", "Mauritania", "MMR", "Mozambique", "Nepal",
     "Nicaragua", "Niger", "Nigeria", "Palestinian Authority (West Bank and Gaza)",
     "Philippines", "Rwanda", "Senegal", "Tajikistan", "Tanzania", "Timor-Leste",
     "Togo", "Tonga", "Venezuela", "Yemen", "Zambia"
