@@ -4,7 +4,7 @@ import openpyxl
 import os
 
 
-# List of countries subject to teh 212E rule
+# List of countries subject to the 212E rule
 COUNTRIES_212E = {
     "Belize", "Benin", "Burkina Faso", "Burma", "Cabo Verde", "Cambodia",
     "Cameroon", "Democratic Republic of the Congo", "Djibouti", "Ecuador",
@@ -41,6 +41,7 @@ def process_excel(file_path):
         wb = openpyxl.load_workbook(file_path)
         ws = wb.active
 
+        # Creates/ chooses the row we will alter, adds the following to column one
         ws["I1"]  = "Updated subject to 212E"
 
         normalized_countries = {normalize_country(c) for c in COUNTRIES_212E}
@@ -57,10 +58,10 @@ def process_excel(file_path):
             # So basically if the subject is listed as YES they are subject AND their country is not
             # Listed under the skill list by country then we add the new field
             # Increase update count
-            if subject_212e and str(subject_212e).strip().upper() == "YES":
-                if norm_citizenship not in normalized_countries:
-                    ws[f'I{row}'] = "No Longer subject"
-                    updates_count += 1
+            # if subject_212e and str(subject_212e).strip().upper() == "YES":
+            if norm_citizenship not in normalized_countries:
+                ws[f'I{row}'] = "Not subject"
+                updates_count += 1
 
         # save with a new file so i dont lose the old one/overwrite
         base, ext = os.path.splitext(file_path)
