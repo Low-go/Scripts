@@ -98,7 +98,71 @@ def audit(file_path):
             return None
 
 def combine_audit_to_main(file1, file2):
-    print("Test 2 successful")
+    
+    try:
+        # Load up and open workesheet of both files
+        # Make a new workbook where we will save this info in
+        wb1 = openpyxl.load_workbook(file1)
+        wb2 = openpyxl.load_workbook(file2)
+        ws1 = wb1[1]
+        ws2 = wb2.active
+
+        new_wb = Workbook()
+        new_ws = new_wb.active
+        new_ws(['Student Id', 'Student Name', 'Address 1', 'Address 2'])
+
+        # Build dictionary/Hashmap for Table 2
+        # Key = student id, Value ["address 1", "address 2"]
+        table2_data = {}
+        for row in ws2.iter_rows(min_row=2, values_only=True):
+            student_id = row[1]
+            address1 = row[2]
+            address2 = row[3]
+
+            if student_id:
+                table2_data[student_id] = {
+                    'address1': address1,
+                    'address2': address2
+                }
+        
+        # Loop through table 1 make decisions
+        for row in ws1.iter_rows(min_row=2, values_only=True):
+            student_id= row[0]
+            student_last_name = row[1]
+            student_first_name = row[2]
+
+            # NOTE These will probably be changed in the future
+            table1_address1 = row[18]
+            table1_address2 = row[19]
+
+            if student_id in table2_data:
+                table2_info = table2_data[student_id]
+
+                # Check if both addresses filled. NOTE might change this later
+                if table2_info['address1'] and table2_info['address2']:
+                    #Use table 2 address
+
+                    new_ws.append(student_id, student_last_name, student_first_name, table2_info['address1'], table2_info['address2'])
+                else:
+                    new_ws.append([student_id, student_last_name, student_first_name, 
+                    table1_address1, 
+                    table1_address2])
+            else:
+                    new_ws.append([student_id, student_last_name, student_first_name,
+                    table1_address1, 
+                    table1_address2])
+
+        base, ext = os.path.splitext(file2)
+        new_file_path = f"{base}_finalized_outcome{ext}"
+        new_wb.save(new_file_path)
+
+        
+        return new_file_path
+
+
+    except Exception as e:
+        print(f"Error processing {file1} or {file2}: {e}")
+        return None
 
 def main():
 
