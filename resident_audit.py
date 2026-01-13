@@ -4,7 +4,28 @@ import openpyxl
 from openpyxl import Workbook, load_workbook
 import os
 
-# Select File window 
+# Select which automated task you wish to perform
+def select_task():
+    result = {"value": None}  
+
+    def choose(val):
+        result["value"] = val
+        root.destroy()  
+
+    root = tk.Tk()
+    root.title("Select Job Automation")
+    root.geometry("400x150")
+
+    button1 = tk.Button(root, text="Combine housing with Main", command=lambda: choose(0))
+    button1.pack(side="left", padx=20, pady=20)
+
+    button2 = tk.Button(root, text="Format Housing Sheet", command=lambda: choose(1))
+    button2.pack(side="right", padx=20, pady=20)
+
+    root.mainloop()  
+    return result["value"]
+
+# Select File window
 def select_file():
     root = tk.Tk()
     root.withdraw()
@@ -43,12 +64,17 @@ def audit(file_path):
 
                 if "Hale" in str(col_N.value):
                     address1 = "55-220 Kulanui St"
+                    #remove leading zero if it exists
+                    q_value = str(col_Q.value)
+                    if q_value.startswith("0"):
+                        q_value = q_value[1:]
+                    address2 = f"H{q_value}"
                 elif "TVA" in str(col_N.value):
                     address1 = "55-550 Naniloa Loop" 
+                    address2 = f"TVA {col_Q.value}"
                 else: 
                     address1 = col_N.value # fallbback
-
-                address2 = col_Q.value
+                    address2 = col_Q.value
 
                 # new_row = col_I.row
                 new_ws.cell(row=new_row_counter, column=1).value = col_B.value
@@ -71,41 +97,88 @@ def audit(file_path):
             print(f"Error processing {file_path}: {e}")
             return None
 
-
+def combine_audit_to_main(file1, file2):
+    print("Test 2 successful")
 
 def main():
 
-    file_path = select_file()
     
+    choice = select_task()
 
-    if not file_path:
-        print("No file sleected")
-        return
+    # We format the housing excel sheet
+    if choice == 1:
     
-    print(f"\nSelected file: {file_path}")
-    print("Processing...")
+        file_path = select_file()
 
-    try:
+        if not file_path:
+            print("No file sleected")
+            return
+        
+        print(f"\nSelected file: {file_path}")
+        print("Processing...")
 
-        new_file_path = audit(file_path)
-        print(f"\n Success!")
-        print(f" - New file saved as : {new_file_path}")
+        try:
 
-        #show success dialog
-        root = tk.Tk()
-        root.withdraw()
-        messagebox.showinfo(
-            "Sucess",
-            f"File updated successfully!\n\nNew file: {os.path.basename(new_file_path)}"
-        )
-        root.destroy()
+            new_file_path = audit(file_path)
+            print(f"\n Success!")
+            print(f" - New file saved as : {new_file_path}")
+
+            #show success dialog
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showinfo(
+                "Sucess",
+                f"File updated successfully!\n\nNew file: {os.path.basename(new_file_path)}"
+            )
+            root.destroy()
+        
+        except Exception as e:
+            print(f"\n✗ Error: {str(e)}")
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showerror("Error", str(e))
+            root.destroy()
     
-    except Exception as e:
-        print(f"\n✗ Error: {str(e)}")
-        root = tk.Tk()
-        root.withdraw()
-        messagebox.showerror("Error", str(e))
-        root.destroy()
+    # We combine it into the main table
+    else:
+        print(f"\n Please select the main table first")
+        print(f"\n ..................") 
+        file_path1 = select_file()
+
+        if not file_path1:
+            print("No file sleected")
+            return
+        
+        print(f"\n Now select the corrected Housing Audit Workbook")
+        print(f"\n ..................")
+        file_path2 = select_file()
+
+        if not file_path2:
+            print("No file sleected")
+            return
+        
+        try:
+            # For security lets create and spit out a new file?
+            new_file_path = combine_audit_to_main(file_path1, file_path2)
+            print(f"\n Success!")
+            print(f" - New file saved as : {new_file_path}")
+
+            #show success dialog
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showinfo(
+                "Sucess",
+                f"File updated successfully!\n\nNew file: {os.path.basename(new_file_path)}"
+            )
+            root.destroy()
+        except Exception as e:
+            print(f"\n✗ Error: {str(e)}")
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showerror("Error", str(e))
+            root.destroy()
+
+    
 
 
 
