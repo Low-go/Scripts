@@ -104,12 +104,12 @@ def combine_audit_to_main(file1, file2):
         # Make a new workbook where we will save this info in
         wb1 = openpyxl.load_workbook(file1)
         wb2 = openpyxl.load_workbook(file2)
-        ws1 = wb1[1]
-        ws2 = wb2.active
+        ws1 = wb1.worksheets[1]
+        ws2 = wb2.worksheets[0]
 
         new_wb = Workbook()
         new_ws = new_wb.active
-        new_ws(['Student Id', 'Student Name', 'Address 1', 'Address 2'])
+        new_ws.append(['Student Id', 'Student Last Name', 'Student First Name', 'Address 1', 'Address 2'])
 
         # Build dictionary/Hashmap for Table 2
         # Key = student id, Value ["address 1", "address 2"]
@@ -132,8 +132,8 @@ def combine_audit_to_main(file1, file2):
             student_first_name = row[2]
 
             # NOTE These will probably be changed in the future
-            table1_address1 = row[18]
-            table1_address2 = row[19]
+            table1_address1 = row[19]
+            table1_address2 = row[20]
 
             if student_id in table2_data:
                 table2_info = table2_data[student_id]
@@ -142,7 +142,7 @@ def combine_audit_to_main(file1, file2):
                 if table2_info['address1'] and table2_info['address2']:
                     #Use table 2 address
 
-                    new_ws.append(student_id, student_last_name, student_first_name, table2_info['address1'], table2_info['address2'])
+                    new_ws.append([student_id, student_last_name, student_first_name, table2_info['address1'], table2_info['address2']])
                 else:
                     new_ws.append([student_id, student_last_name, student_first_name, 
                     table1_address1, 
