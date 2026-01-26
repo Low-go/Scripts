@@ -65,8 +65,6 @@ def get_column_mapping():
                 },
                 'table2': {
                     'student_id': col_letter_to_index(t2_id_entry.get()),
-                    'last_name': col_letter_to_index(t2_last_entry.get()),
-                    'first_name': col_letter_to_index(t2_first_entry.get()),
                     'address1': col_letter_to_index(t2_addr1_entry.get()),
                     'address2': col_letter_to_index(t2_addr2_entry.get()),
                     'city': col_letter_to_index(t2_city_entry.get()),
@@ -83,7 +81,7 @@ def get_column_mapping():
     
     root = tk.Tk()
     root.title("Specify Column Mappings")
-    root.geometry("400x600")
+    root.geometry("400x550")
     
     # Table 1 section
     tk.Label(root, text="Table 1 (Main) Columns:", font=("Arial", 11, "bold")).pack(pady=(10,5))
@@ -135,37 +133,27 @@ def get_column_mapping():
     tk.Label(frame2, text="Student ID:", width=12, anchor="w").grid(row=0, column=0, padx=5, pady=3)
     t2_id_entry = tk.Entry(frame2, width=10)
     t2_id_entry.grid(row=0, column=1, padx=5, pady=3)
-    t2_id_entry.insert(0, "A")
+    t2_id_entry.insert(0, "B")
     
-    tk.Label(frame2, text="Last Name:", width=12, anchor="w").grid(row=1, column=0, padx=5, pady=3)
-    t2_last_entry = tk.Entry(frame2, width=10)
-    t2_last_entry.grid(row=1, column=1, padx=5, pady=3)
-    t2_last_entry.insert(0, "B")
-    
-    tk.Label(frame2, text="First Name:", width=12, anchor="w").grid(row=2, column=0, padx=5, pady=3)
-    t2_first_entry = tk.Entry(frame2, width=10)
-    t2_first_entry.grid(row=2, column=1, padx=5, pady=3)
-    t2_first_entry.insert(0, "C")
-    
-    tk.Label(frame2, text="Address 1:", width=12, anchor="w").grid(row=3, column=0, padx=5, pady=3)
+    tk.Label(frame2, text="Address 1:", width=12, anchor="w").grid(row=1, column=0, padx=5, pady=3)
     t2_addr1_entry = tk.Entry(frame2, width=10)
-    t2_addr1_entry.grid(row=3, column=1, padx=5, pady=3)
-    t2_addr1_entry.insert(0, "D")
+    t2_addr1_entry.grid(row=1, column=1, padx=5, pady=3)
+    t2_addr1_entry.insert(0, "C")
     
-    tk.Label(frame2, text="Address 2:", width=12, anchor="w").grid(row=4, column=0, padx=5, pady=3)
+    tk.Label(frame2, text="Address 2:", width=12, anchor="w").grid(row=2, column=0, padx=5, pady=3)
     t2_addr2_entry = tk.Entry(frame2, width=10)
-    t2_addr2_entry.grid(row=4, column=1, padx=5, pady=3)
-    t2_addr2_entry.insert(0, "E")
+    t2_addr2_entry.grid(row=2, column=1, padx=5, pady=3)
+    t2_addr2_entry.insert(0, "D")
     
-    tk.Label(frame2, text="City:", width=12, anchor="w").grid(row=5, column=0, padx=5, pady=3)
+    tk.Label(frame2, text="City:", width=12, anchor="w").grid(row=3, column=0, padx=5, pady=3)
     t2_city_entry = tk.Entry(frame2, width=10)
-    t2_city_entry.grid(row=5, column=1, padx=5, pady=3)
-    t2_city_entry.insert(0, "F")
+    t2_city_entry.grid(row=3, column=1, padx=5, pady=3)
+    t2_city_entry.insert(0, "E")
     
-    tk.Label(frame2, text="Postal:", width=12, anchor="w").grid(row=6, column=0, padx=5, pady=3)
+    tk.Label(frame2, text="Postal:", width=12, anchor="w").grid(row=4, column=0, padx=5, pady=3)
     t2_postal_entry = tk.Entry(frame2, width=10)
-    t2_postal_entry.grid(row=6, column=1, padx=5, pady=3)
-    t2_postal_entry.insert(0, "G")
+    t2_postal_entry.grid(row=4, column=1, padx=5, pady=3)
+    t2_postal_entry.insert(0, "F")
     
     # Buttons
     button_frame = tk.Frame(root)
@@ -217,24 +205,15 @@ def audit(file_path):
                     address1 = col_N.value # fallbback
                     address2 = col_Q.value
 
-                full_name = str(col_B.value).strip() if col_B.value else ""
-                if full_name:
-                    name_parts = full_name.split(None, 1)
-                    first_name = name_parts[0] if len(name_parts) > 0 else ""
-                    last_name = name_parts[1] if len(name_parts) > 1 else ""
-                else:
-                    first_name = ""
-                    last_name = ""
 
                 # new_row = col_I.row
-                new_ws.cell(row=new_row_counter, column=1).value = col_C.value
-                new_ws.cell(row=new_row_counter, column=2).value = last_name
-                new_ws.cell(row=new_row_counter, column=3).value = first_name
-                new_ws.cell(row=new_row_counter, column=4).value = address1
-                new_ws.cell(row=new_row_counter, column=5).value = address2
-                new_ws.cell(row=new_row_counter, column=6).value = "Laie"
+                new_ws.cell(row=new_row_counter, column=1).value = col_B.value
+                new_ws.cell(row=new_row_counter, column=2).value = col_C.value
+                new_ws.cell(row=new_row_counter, column=3).value = address1
+                new_ws.cell(row=new_row_counter, column=4).value = address2
+                new_ws.cell(row=new_row_counter, column=5).value = "Laie"
                 new_ws.cell(row=new_row_counter, column=7).value = "96762"
-                new_ws.cell(row=new_row_counter, column=8).value = "Hawaii"
+                new_ws.cell(row=new_row_counter, column=6).value = "Hawaii"
 
                 new_row_counter +=1
 
@@ -244,10 +223,6 @@ def audit(file_path):
 
         
         return new_file_path
-
-    except Exception as e:
-            print(f"Error processing {file_path}: {e}")
-            return None
 
     except Exception as e:
             print(f"Error processing {file_path}: {e}")
@@ -272,8 +247,6 @@ def combine_audit_to_main(file1, file2, col_map):
         # Build dictionary/Hashmap for Table 2
         # Key = student id, Value ["address 1", "address 2", "City", "Postal"]
         table2_data = {}
-    
-
         for row in ws2.iter_rows(min_row=2, values_only=True):
             student_id = row[col_map['table2']['student_id']]
             address1 = row[col_map['table2']['address1']]
@@ -289,8 +262,6 @@ def combine_audit_to_main(file1, file2, col_map):
                     'postal2': postal2
                 }
         
-        processed_students = set()
-
         # Loop through table 1 make decisions
         for row in ws1.iter_rows(min_row=2, values_only=True):
             student_id = row[col_map['table1']['student_id']]
@@ -303,11 +274,7 @@ def combine_audit_to_main(file1, file2, col_map):
             table1_city = row[col_map['table1']['city']]
             table1_postal = row[col_map['table1']['postal']]
 
-            if student_id:
-                processed_students.add(student_id)
-
             if student_id in table2_data:
-                # Student in both lists prioritize table 2 - Housing list
                 table2_info = table2_data[student_id]
 
                 # Check if both addresses filled. NOTE might change this later
@@ -329,22 +296,6 @@ def combine_audit_to_main(file1, file2, col_map):
                     table1_city,
                     table1_postal
                     ])
-        
-        # Now add students that are ONLY in table2 (not in table1)
-        for row in ws2.iter_rows(min_row=2, values_only=True):
-            student_id = row[col_map['table2']['student_id']]
-            
-            if student_id and student_id not in processed_students:
-                # Student ONLY in list 2
-                student_last_name = row[col_map['table2']['last_name']]  
-                student_first_name = row[col_map['table2']['first_name']]  
-                address1 = row[col_map['table2']['address1']]
-                address2 = row[col_map['table2']['address2']]
-                city2 = row[col_map['table2']['city']]
-                postal2 = row[col_map['table2']['postal']]
-                
-                new_ws.append([student_id, student_last_name, student_first_name,
-                            address1, address2, city2, postal2])
 
         base, ext = os.path.splitext(file2)
         new_file_path = f"{base}_finalized_outcome{ext}"
