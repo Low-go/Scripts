@@ -212,8 +212,8 @@ def audit(file_path):
                 new_ws.cell(row=new_row_counter, column=3).value = address1
                 new_ws.cell(row=new_row_counter, column=4).value = address2
                 new_ws.cell(row=new_row_counter, column=5).value = "Laie"
-                new_ws.cell(row=new_row_counter, column=7).value = "96762"
-                new_ws.cell(row=new_row_counter, column=6).value = "Hawaii"
+                new_ws.cell(row=new_row_counter, column=6).value = "96762"
+                new_ws.cell(row=new_row_counter, column=7).value = "Hawaii"
 
                 new_row_counter +=1
 
