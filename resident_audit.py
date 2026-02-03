@@ -12,15 +12,23 @@ def select_task():
         result["value"] = val
         root.destroy()  
 
+    def on_close():
+        root.destroy()
+
     root = tk.Tk()
     root.title("Select Job Automation")
-    root.geometry("400x150")
+    root.geometry("500x200")
+
+    root.protocol("WM_DELETE_WINDOW", on_close)
 
     button1 = tk.Button(root, text="Combine housing with Main", command=lambda: choose(0))
-    button1.pack(side="left", padx=20, pady=20)
+    button1.pack(padx=20, pady=10)
 
     button2 = tk.Button(root, text="Format Housing Sheet", command=lambda: choose(1))
-    button2.pack(side="right", padx=20, pady=20)
+    button2.pack(padx=20, pady=10)
+
+    button3 = tk.Button(root, text="Split Complete & Incomplete", command=lambda: choose(2))
+    button3.pack(padx=20, pady=10)
 
     root.mainloop()  
     return result["value"]
@@ -68,7 +76,8 @@ def get_column_mapping():
                     'address1': col_letter_to_index(t2_addr1_entry.get()),
                     'address2': col_letter_to_index(t2_addr2_entry.get()),
                     'city': col_letter_to_index(t2_city_entry.get()),
-                    'postal': col_letter_to_index(t2_postal_entry.get())
+                    'postal': col_letter_to_index(t2_postal_entry.get()),
+                    'state': col_letter_to_index(t2_state_entry.get())
                 }
             }
             result["mapping"] = mapping
@@ -154,6 +163,11 @@ def get_column_mapping():
     t2_postal_entry = tk.Entry(frame2, width=10)
     t2_postal_entry.grid(row=4, column=1, padx=5, pady=3)
     t2_postal_entry.insert(0, "F")
+
+    tk.Label(frame2, text="State:", width=12, anchor="w").grid(row=5, column=0, padx=5, pady=3)
+    t2_state_entry = tk.Entry(frame2, width=10)
+    t2_state_entry.grid(row=5, column=1, padx=5, pady=3)
+    t2_state_entry.insert(0, "G")
     
     # Buttons
     button_frame = tk.Frame(root)
@@ -309,10 +323,103 @@ def combine_audit_to_main(file1, file2, col_map):
         print(f"Error processing {file1} or {file2}: {e}")
         return None
 
+
+
+def split_complete_incomplete(file1, file2, col_map):
+    
+    print(f"DEBUG: Starting split with col_map = {col_map}")
+
+    try:
+        # Load up and open workesheet of both files
+        # Make two new workbooks - one for complete, one for incomplete
+        wb1 = openpyxl.load_workbook(file1)
+        wb2 = openpyxl.load_workbook(file2)
+        ws1 = wb1.worksheets[1]
+        ws2 = wb2.worksheets[0]
+
+        # Workbook for complete entries (Table 2 data)
+        complete_wb = Workbook()
+        complete_ws = complete_wb.active
+        complete_ws.append(['Student Id', 'Student Last Name', 'Student First Name', 'Address 1', 'Address 2', 'City', 'Postal', 'State'])
+
+        # Workbook for incomplete entries (Table 1 fallback)
+        incomplete_wb = Workbook()
+        incomplete_ws = incomplete_wb.active
+        incomplete_ws.append(['Student Id', 'Student Last Name', 'Student First Name', 'Address 1', 'Address 2', 'City', 'Postal'])
+
+        # Build dictionary/Hashmap for Table 2
+        # Key = student id, Value ["address 1", "address 2", "City", "Postal"]
+        table2_data = {}
+        for row in ws2.iter_rows(min_row=2, values_only=True):
+            student_id = row[col_map['table2']['student_id']]
+            address1 = row[col_map['table2']['address1']]
+            address2 = row[col_map['table2']['address2']]
+            city2 = row[col_map['table2']['city']]
+            postal2 = row[col_map['table2']['postal']]
+            state2 = row[col_map['table2']['state']]
+
+            if student_id:
+                table2_data[student_id] = {
+                    'address1': address1,
+                    'address2': address2,
+                    'city2': city2,
+                    'postal2': postal2,
+                    'state2': state2 
+                }
+        
+        # Loop through table 1 make decisions
+        for row in ws1.iter_rows(min_row=2, values_only=True):
+            student_id = row[col_map['table1']['student_id']]
+            student_last_name = row[col_map['table1']['last_name']]
+            student_first_name = row[col_map['table1']['first_name']]
+
+            # NOTE These will probably be changed in the future
+            table1_address1 = row[col_map['table1']['address1']]
+            table1_address2 = row[col_map['table1']['address2']]
+            table1_city = row[col_map['table1']['city']]
+            table1_postal = row[col_map['table1']['postal']]
+
+            if student_id in table2_data:
+                table2_info = table2_data[student_id]
+
+                # Check if both addresses filled. NOTE might change this later
+                if table2_info['address1'] and table2_info['address2']:
+                    # Use table 2 address - goes to COMPLETE sheet
+                    complete_ws.append([student_id, student_last_name, student_first_name, 
+                                       table2_info['address1'], table2_info['address2'], 
+                                       table2_info['city2'], table2_info['postal2'], table2_info['state2']])
+                else:
+                    # Table 2 incomplete - goes to INCOMPLETE sheet
+                    incomplete_ws.append([student_id, student_last_name, student_first_name, 
+                                         table1_address1, table1_address2,
+                                         table1_city, table1_postal])
+            else:
+                # Not in Table 2 - goes to INCOMPLETE sheet
+                incomplete_ws.append([student_id, student_last_name, student_first_name,
+                                     table1_address1, table1_address2,
+                                     table1_city, table1_postal])
+
+        base, ext = os.path.splitext(file2)
+        complete_file_path = f"{base}_complete{ext}"
+        incomplete_file_path = f"{base}_incomplete{ext}"
+        
+        complete_wb.save(complete_file_path)
+        incomplete_wb.save(incomplete_file_path)
+
+        return complete_file_path, incomplete_file_path
+
+    except Exception as e:
+        print(f"Error processing {file1} or {file2}: {e}")
+        return None, None
+    
+    
 def main():
 
-    
     choice = select_task()
+
+    if choice is None:
+        print("No task selected")
+        return
 
     # We format the housing excel sheet
     if choice == 1:
@@ -348,6 +455,54 @@ def main():
             messagebox.showerror("Error", str(e))
             root.destroy()
     
+    # We split into complete and incomplete tables
+    elif choice == 2:
+        print(f"\n Please select the main table first")
+        print(f"\n ..................") 
+        file_path1 = select_file()
+
+        if not file_path1:
+            print("No file sleected")
+            return
+        
+        print(f"\n Now select the corrected Housing Audit Workbook")
+        print(f"\n ..................")
+        file_path2 = select_file()
+
+        if not file_path2:
+            print("No file sleected")
+            return
+        
+        # Get column mappings from user
+        col_map = get_column_mapping()
+
+        if not col_map:
+            print("Operation cancelled")
+            return
+        
+        try:
+            # Creates two files - complete and incomplete
+            complete_path, incomplete_path = split_complete_incomplete(file_path1, file_path2, col_map)
+            print(f"\n Success!")
+            print(f" - Complete entries saved as: {complete_path}")
+            print(f" - Incomplete entries saved as: {incomplete_path}")
+
+            #show success dialog
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showinfo(
+                "Success",
+                f"Files created successfully!\n\nComplete: {os.path.basename(complete_path)}\nIncomplete: {os.path.basename(incomplete_path)}"
+            )
+            root.destroy()
+        except Exception as e:
+            print(f"\n✗ Error: {str(e)}")
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showerror("Error", str(e))
+            root.destroy()
+
+
     # We combine it into the main table
     else:
         print(f"\n Please select the main table first")
